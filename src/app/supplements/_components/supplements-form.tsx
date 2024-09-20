@@ -11,6 +11,7 @@ import {
 import {Input} from "~/components/ui/input"
 import {Button} from "~/components/ui/button";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const supplementsFormSchema = z.object({
     omega: z.string().min(2, {message: "Must be at least 2 letter"}).max(50),
 })

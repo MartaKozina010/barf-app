@@ -15,7 +15,7 @@ export const CreateNewPet: FC = () => {
         resolver: zodResolver(petFormSchema),
     })
 
-    const {mutate: createNewPet, error} = api.pet.createNewPet.useMutation()
+    const {mutate: createNewPet} = api.pet.createNewPet.useMutation()
 
     const onSubmit: SubmitHandler<FormData> = data => {
         createNewPet({name: data.petName, age: data.age})

@@ -13,7 +13,7 @@ type Props = PetDetails & {
 export const EditPetDetails: FC<Props> = ({name, age, id, setEditableId}) => {
     const methods = useForm<FormData>({defaultValues: {petName: name, age}})
 
-    const {mutate: updatePet, error} = api.pet.updatePetById.useMutation()
+    const {mutate: updatePet} = api.pet.updatePetById.useMutation()
 
     const onSubmit: SubmitHandler<FormData> = data => {
         console.log("UPDATE name: ", data.petName)

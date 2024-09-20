@@ -5,14 +5,6 @@ import {
 
     Search,
 } from "lucide-react"
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbList,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb"
 
 import {
     DropdownMenu,
@@ -59,25 +51,6 @@ export const Navbar: FC<PropsWithChildren> = ({children}) => {
                             </nav>
                         </SheetContent>
                     </Sheet>
-                    {/*<Breadcrumb className="hidden md:flex">*/}
-                    {/*    <BreadcrumbList>*/}
-                    {/*        <BreadcrumbItem>*/}
-                    {/*            <BreadcrumbLink asChild>*/}
-                    {/*                <Link href="#">Dashboard</Link>*/}
-                    {/*            </BreadcrumbLink>*/}
-                    {/*        </BreadcrumbItem>*/}
-                    {/*        <BreadcrumbSeparator/>*/}
-                    {/*        <BreadcrumbItem>*/}
-                    {/*            <BreadcrumbLink asChild>*/}
-                    {/*                <Link href="#">Products</Link>*/}
-                    {/*            </BreadcrumbLink>*/}
-                    {/*        </BreadcrumbItem>*/}
-                    {/*        <BreadcrumbSeparator/>*/}
-                    {/*        <BreadcrumbItem>*/}
-                    {/*            <BreadcrumbPage>All Products</BreadcrumbPage>*/}
-                    {/*        </BreadcrumbItem>*/}
-                    {/*    </BreadcrumbList>*/}
-                    {/*</Breadcrumb>*/}
 
                     <div className="relative ml-auto flex-1 md:grow-0">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"/>

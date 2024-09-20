@@ -1,7 +1,7 @@
 import {z} from "zod";
 
 import {createTRPCRouter, publicProcedure} from "~/server/api/trpc";
-import {PetDetails} from "~/utils/types/pets-types";
+import {type PetDetails} from "~/utils/types/pets-types";
 
 const pets: PetDetails[] = [
     {

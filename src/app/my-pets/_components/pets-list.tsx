@@ -8,7 +8,7 @@ import {api} from "~/trpc/react";
 
 export const PetsList: FC = () => {
     const [editableId, setEditableId] = useState<number | null>(null);
-    const {data: petsList, isLoading, error} = api.pet.getPetsList.useQuery()
+    const {data: petsList} = api.pet.getPetsList.useQuery()
 
     return (
         <>
