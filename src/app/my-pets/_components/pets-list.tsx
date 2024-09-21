@@ -8,16 +8,17 @@ import {api} from "~/trpc/react";
 
 export const PetsList: FC = () => {
     const [editableId, setEditableId] = useState<number | null>(null);
-    const {data: petsList} = api.pet.getPetsList.useQuery()
+    const {data: petsList, isLoading} = api.pet.getPetsList.useQuery()
 
     return (
-        <>
-            {petsList?.map(pet => <Card key={pet.id}>
+        <div className="flex flex-col gap-md">
+            {isLoading && <div>Loading...</div>}
+            {petsList?.map(pet => <Card key={pet.id} className="p-lg">
                 {editableId === pet.id
                     ? <EditPetDetails {...pet} setEditableId={setEditableId}/>
                     : <DisplayPetDetails {...pet} setEditableId={setEditableId}/>
                 }
             </Card>)}
-        </>
+        </div>
     )
 }

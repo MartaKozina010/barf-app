@@ -23,7 +23,6 @@ export const CreateUpdatePetForm: FC = () => {
 
     return (
         <>
-
             <FormField
                 control={methods.control}
                 name="petName"
@@ -32,7 +31,8 @@ export const CreateUpdatePetForm: FC = () => {
                         <FormLabel>Pet name</FormLabel>
                         <FormControl>
                             <Input {...field}
-                                   placeholder="pet name"/>
+                                   placeholder="pet name"
+                            />
                         </FormControl>
                         <FormMessage/>
                     </FormItem>
@@ -47,7 +47,7 @@ export const CreateUpdatePetForm: FC = () => {
                         <FormControl>
                             <Input {...field}
                                    placeholder="age"
-                                   onChange={e => field.onChange(+e.target.value)}
+                                   onChange={e => field.onChange(e.target.value ? +e.target.value : undefined)}
                                    type="number"
                                    className="[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
@@ -57,12 +57,6 @@ export const CreateUpdatePetForm: FC = () => {
                 )}
             />
 
-            {/*<FormItem>*/}
-            {/*    <FormLabel>Age</FormLabel>*/}
-            {/*    <Input placeholder="0" {...methods.register("age", {valueAsNumber: true})} type="number"*/}
-            {/*           className="[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>*/}
-            {/*    <FormMessage/>*/}
-            {/*</FormItem>*/}
         </>
     )
 }
