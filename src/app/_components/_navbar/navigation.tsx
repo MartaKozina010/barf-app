@@ -66,7 +66,7 @@ export const NavigationMobile: FC = () => {
             {navList(pathname).map(item => <Link
                     key={item.name}
                     href={item.link.href}
-                    className={twMerge("flex items-center gap-4 px-2.5 hover:text-foreground", item.link.isActive ? 'text-blue-500' : "text-muted-foreground")}
+                    className={twMerge("flex items-center gap-4 px-2.5 hover:text-foreground", item.link.isActive ? 'text-base-yellow' : "text-muted-foreground")}
                 >
                     {item.Icon}
                     {item.name}

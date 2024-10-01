@@ -18,7 +18,7 @@ export const NavbarButton: FC<NavbarButtonType> = ({name, link: {href, isActive}
             <TooltipTrigger asChild>
                 <Link
                     href={href}
-                    className={twMerge("flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8", isActive ? 'text-blue-500' : 'text-muted-foreground')}
+                    className={twMerge("flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8", isActive ? 'text-base-yellow' : 'text-muted-foreground')}
                 >
                     {Icon}
                     <span className="sr-only">{name}</span>

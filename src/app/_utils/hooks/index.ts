@@ -1,3 +1,5 @@
 export * from "./useCreateNewPet"
 export * from "./useDeletePet"
 export * from "./useUpdatePet"
+export * from "./useGetPetsList"
+export * from "./useGetBreedsListQuery"

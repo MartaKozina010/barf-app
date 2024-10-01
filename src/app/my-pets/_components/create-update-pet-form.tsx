@@ -1,6 +1,6 @@
 "use client"
 
-import {type FC} from "react";
+import {type FC, useEffect} from "react";
 import {z} from "zod"
 import {
     FormControl,
@@ -11,42 +11,94 @@ import {
 } from "~/components/ui/form"
 import {Input} from "~/components/ui/input"
 import {useFormContext} from "react-hook-form";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "~/components/ui/select";
+import {Checkbox} from "~/components/ui/checkbox";
+import {Popover, PopoverContent, PopoverTrigger} from "~/components/ui/popover";
+import {Button} from "~/components/ui/button";
+import {Calendar} from "~/components/ui/calendar";
+import {clsx} from "clsx";
+import {CalendarIcon} from "@radix-ui/react-icons"
+import {format} from "date-fns"
+import {useGetDogBreedsList} from "~/app/_utils";
+import {useGetCatBreedsList} from "~/app/_utils/hooks/useGetBreedsListQuery";
+import {Species} from '@prisma/client'
 
 export const petFormSchema = z.object({
-    petName: z.string().min(2, {message: "Must be at least 2 letter"}).max(50),
-    age: z.number().max(100, {message: "Max 100"})
+    petName: z.string().min(1, {message: "Required"}),
+    species: z.nativeEnum(Species),
+    weight: z.number().min(1, {message: "Min 1"}).max(100, {message: "Max 100"}),
+    percentOfWeight: z.number().min(0.5, {message: "Min 0.5%"}).max(100),
+    breed: z.string(),
+    birthdate: z.date().optional(),
+    neutered: z.boolean().optional()
 })
 export type PetFormSchema = z.infer<typeof petFormSchema>
 
 export const CreateUpdatePetForm: FC = () => {
     const methods = useFormContext<PetFormSchema>()
+    const selectedSpecies = methods.watch("species")
+
+    const {dogBreedsList} = useGetDogBreedsList(selectedSpecies === "dog")
+    const {catBreedsList} = useGetCatBreedsList(selectedSpecies === "cat")
+
+    const breedsList: Record<Species, typeof dogBreedsList> = {
+        dog: dogBreedsList,
+        cat: catBreedsList
+    }
+
+    useEffect(() => {
+        methods.setValue("breed", "");
+    }, [methods.watch("species")]);
 
     return (
-        <>
+        <div className="flex flex-col gap-md">
             <FormField
                 control={methods.control}
                 name="petName"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel>Pet name</FormLabel>
+                        <FormLabel required>Pet name</FormLabel>
                         <FormControl>
-                            <Input {...field}
-                                   placeholder="pet name"
-                            />
+                            <Input {...field} placeholder="Beza"/>
                         </FormControl>
                         <FormMessage/>
                     </FormItem>
                 )}
             />
+
             <FormField
                 control={methods.control}
-                name="age"
+                name="species"
                 render={({field}) => (
                     <FormItem>
-                        <FormLabel>Age</FormLabel>
+                        <FormLabel required>Species</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select"/>
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {Object.values(Species).map(item => <SelectItem
+                                    key={item} value={item}>
+                                    {item[0]?.toUpperCase() + item.slice(1)}
+                                </SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={methods.control}
+                name="weight"
+                render={({field}) => (
+                    <FormItem>
+                        <FormLabel required>Weight [kg]</FormLabel>
                         <FormControl>
                             <Input {...field}
-                                   placeholder="age"
+                                   placeholder="16"
                                    onChange={e => field.onChange(e.target.value ? +e.target.value : undefined)}
                                    type="number"
                                    className="[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -57,7 +109,111 @@ export const CreateUpdatePetForm: FC = () => {
                 )}
             />
 
-        </>
+            <FormField
+                control={methods.control}
+                name="percentOfWeight"
+                render={({field}) => (
+                    <FormItem>
+                        <FormLabel required>Percent of weight [%]</FormLabel>
+                        <FormControl>
+                            <Input {...field}
+                                   placeholder="1"
+                                   onChange={e => field.onChange(e.target.value ? +e.target.value : undefined)}
+                                   type="number"
+                                   className="[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            />
+                        </FormControl>
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={methods.control}
+                name="birthdate"
+                render={({field}) => (
+                    <FormItem className="flex flex-col">
+                        <FormLabel>Date of birth</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button
+                                        variant="outline"
+                                        className={clsx(
+                                            "pl-3 text-left font-normal hover:bg-white",
+                                            !field.value && "text-muted-foreground"
+                                        )}
+                                    >
+                                        {field.value ? (
+                                            format(field.value, "PPP")
+                                        ) : (
+                                            <span>Pick a date</span>
+                                        )}
+                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50"/>
+                                    </Button>
+                                </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    disabled={(date) =>
+                                        date > new Date() || date < new Date("1900-01-01")
+                                    }
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={methods.control}
+                name="breed"
+                render={({field}) => (
+                    <FormItem>
+                        <FormLabel>Breed</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value || ""}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select"/>
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {breedsList[selectedSpecies] ? breedsList[selectedSpecies].map(({name}) => <SelectItem
+                                    key={name} value={name}>{name}</SelectItem>) : null
+                                }
+                            </SelectContent>
+                        </Select>
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={methods.control}
+                name="neutered"
+                render={({field}) => (
+                    <div>
+                        <FormLabel>Neutered</FormLabel>
+                        <FormItem
+                            className="flex flex-row items-start space-x-3 space-y-0 rounded-md border px-4 py-3 shadow mt-sm">
+                            <FormControl>
+                                <Checkbox
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormLabel>Yes</FormLabel>
+                        </FormItem>
+                    </div>
+                )}
+            />
+
+        </div>
     )
 }
 

@@ -1,2 +1,2 @@
 export * from "./pets-list"
-export * from "./create-new-pet"
+export * from "./add-new-pet"

@@ -1,23 +1,21 @@
 'use client';
 
-import {type FC, useState} from "react";
+import {type FC} from "react";
 import {Card} from "~/components/ui/card";
-import {DisplayPetDetails} from "~/app/my-pets/_components/display-pet-details";
-import {EditPetDetails} from "~/app/my-pets/_components/edit-pet-details";
-import {api} from "~/trpc/react";
+import {EditPetDetailsModal} from "~/app/my-pets/_components/edit-pet-details-modal";
+import {useGetPetsList} from "~/app/_utils";
 
 export const PetsList: FC = () => {
-    const [editableId, setEditableId] = useState<number | null>(null);
-    const {data: petsList, isLoading} = api.pet.getPetsList.useQuery()
+    const {petsList, isLoading} = useGetPetsList()
 
     return (
         <div className="flex flex-col gap-md">
             {isLoading && <div>Loading...</div>}
-            {petsList?.map(pet => <Card key={pet.id} className="p-lg">
-                {editableId === pet.id
-                    ? <EditPetDetails {...pet} setEditableId={setEditableId}/>
-                    : <DisplayPetDetails {...pet} setEditableId={setEditableId}/>
-                }
+            {petsList?.length ? <h3>Your pets</h3> : null}
+            {petsList?.map((pet) => <Card key={pet.id} className="p-lg">
+                <div>ID: {pet.id}</div>
+                <div>name: {pet.petName}</div>
+                <EditPetDetailsModal {...pet} />
             </Card>)}
         </div>
     )

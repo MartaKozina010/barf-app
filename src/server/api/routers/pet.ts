@@ -1,61 +1,38 @@
 import {z} from "zod";
-
+import {Species, Pet} from '@prisma/client'
 import {createTRPCRouter, publicProcedure} from "~/server/api/trpc";
-import {type PetDetails} from "~/utils/types/pets-types";
-
-const pets: PetDetails[] = [
-    {
-        id: 1,
-        name: "Beza",
-        age: 3
-    },
-    {
-        id: 2,
-        name: "Pysia",
-        age: 14
-    }
-];
 
 export const petRouter = createTRPCRouter({
     getPetsList: publicProcedure
-        .query(({ctx}) => ctx.db.pet.findMany()),
+        .query(({ctx}) => ctx.db.pet.findMany().then(
+            petList => petList.map(pet => ({
+                ...pet,
+                birthdate: pet.birthdate ?? undefined,
+                neutered: pet.neutered ?? undefined
+            }))
+        )),
 
     createNewPet: publicProcedure
         .input(z.object({
-            name: z.string(),
-            age: z.number()
+            petName: z.string(),
+            species: z.nativeEnum(Species),
+            weight: z.number(),
+            percentOfWeight: z.number(),
+            breed: z.string(),
+            birthdate: z.date().nullable(),
+            neutered: z.boolean().nullable()
         }))
+        //TODO change them all with zod-prisma as Pet model
         .mutation(async ({ctx, input}) => {
-
             return ctx.db.pet.create({
-                data: {
-                    name: input.name,
-                    age: input.age
-                }
+                data: {...input}
             })
         }),
-
-    // updatePetById: publicProcedure
-    //     .input(z.object({
-    //         id: z.number(),
-    //         name: z.string(),
-    //         age: z.number()
-    //     }))
-    //     .mutation(async ({input}) => {
-    //         const pet: PetDetails = {
-    //             id: input.id,
-    //             name: input.name,
-    //             age: input.age
-    //         };
-    //         pets.push(pet);
-    //         return pet;
-    //     })
 
     updatePetById: publicProcedure
         .input(z.object({
             id: z.number(),
-            name: z.string(),
-            age: z.number()
+            petName: z.string(),
         }))
         .mutation(async ({ctx, input}) => {
             return ctx.db.pet.update({
@@ -63,8 +40,7 @@ export const petRouter = createTRPCRouter({
                     id: input.id,
                 },
                 data: {
-                    name: input.name,
-                    age: input.age
+                    petName: input.petName,
                 }
             })
         }),
@@ -80,4 +56,5 @@ export const petRouter = createTRPCRouter({
                 }
             })
         })
+
 });
