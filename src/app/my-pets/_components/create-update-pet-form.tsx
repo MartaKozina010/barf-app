@@ -1,7 +1,6 @@
 "use client"
 
 import {type FC, useEffect} from "react";
-import {z} from "zod"
 import {
     FormControl,
     FormField,
@@ -22,20 +21,10 @@ import {format} from "date-fns"
 import {useGetDogBreedsList} from "~/app/_utils";
 import {useGetCatBreedsList} from "~/app/_utils/hooks/useGetBreedsListQuery";
 import {Species} from '@prisma/client'
-
-export const petFormSchema = z.object({
-    petName: z.string().min(1, {message: "Required"}),
-    species: z.nativeEnum(Species),
-    weight: z.number().min(1, {message: "Min 1"}).max(100, {message: "Max 100"}),
-    percentOfWeight: z.number().min(0.5, {message: "Min 0.5%"}).max(100),
-    breed: z.string(),
-    birthdate: z.date().optional(),
-    neutered: z.boolean().optional()
-})
-export type PetFormSchema = z.infer<typeof petFormSchema>
+import {Pet as FormData} from "~/utils";
 
 export const CreateUpdatePetForm: FC = () => {
-    const methods = useFormContext<PetFormSchema>()
+    const methods = useFormContext<Partial<FormData>>()
     const selectedSpecies = methods.watch("species")
 
     const {dogBreedsList} = useGetDogBreedsList(selectedSpecies === "dog")
@@ -47,9 +36,13 @@ export const CreateUpdatePetForm: FC = () => {
     }
 
     useEffect(() => {
-        methods.setValue("breed", "");
+        if (methods.watch("species") === "dog"
+            && dogBreedsList?.map(item => item.name)!.includes(methods.watch("breed")!)) {
+            methods.setValue("breed", undefined);
+        }
     }, [methods.watch("species")]);
 
+    methods.watch(val => console.log(val))
     return (
         <div className="flex flex-col gap-md">
             <FormField
@@ -83,6 +76,29 @@ export const CreateUpdatePetForm: FC = () => {
                                     key={item} value={item}>
                                     {item[0]?.toUpperCase() + item.slice(1)}
                                 </SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage/>
+                    </FormItem>
+                )}
+            />
+
+            <FormField
+                control={methods.control}
+                name="breed"
+                render={({field}) => (
+                    <FormItem>
+                        <FormLabel required>Breed</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select"/>
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {selectedSpecies && breedsList[selectedSpecies]?.map(({name}) => <SelectItem
+                                    key={name} value={name}>{name}</SelectItem>)
+                                }
                             </SelectContent>
                         </Select>
                         <FormMessage/>
@@ -165,29 +181,6 @@ export const CreateUpdatePetForm: FC = () => {
                                 />
                             </PopoverContent>
                         </Popover>
-                        <FormMessage/>
-                    </FormItem>
-                )}
-            />
-
-            <FormField
-                control={methods.control}
-                name="breed"
-                render={({field}) => (
-                    <FormItem>
-                        <FormLabel>Breed</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value || ""}>
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select"/>
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {breedsList[selectedSpecies] ? breedsList[selectedSpecies].map(({name}) => <SelectItem
-                                    key={name} value={name}>{name}</SelectItem>) : null
-                                }
-                            </SelectContent>
-                        </Select>
                         <FormMessage/>
                     </FormItem>
                 )}

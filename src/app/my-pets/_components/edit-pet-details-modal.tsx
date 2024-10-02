@@ -1,9 +1,7 @@
 import {type FC, useState} from "react";
 import {Form} from "~/components/ui/form";
 import {
-    CreateUpdatePetForm, PetFormSchema,
-    petFormSchema,
-    type PetFormSchema as FormData
+    CreateUpdatePetForm
 } from "~/app/my-pets/_components/create-update-pet-form";
 import {Button} from "~/components/ui/button";
 import {type SubmitHandler, useForm} from "react-hook-form";
@@ -11,36 +9,36 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {useDeletePet, useUpdatePet} from "~/app/_utils";
 import {Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger} from "~/components/ui/dialog";
 import {ButtonWithLoader} from "~/app/_components/SubmitButton";
+import {UpdatePet as FormData, PetSchema, Pet as Props} from "~/utils";
 
-type Props = PetFormSchema & { id: number }
-export const EditPetDetailsModal: FC<Props> = (props) => {
+export const EditPetDetailsModal: FC<Props> = (pet) => {
     const methods = useForm<FormData>({
-        defaultValues: {...props},
+        defaultValues: pet,
         mode: "onSubmit",
-        resolver: zodResolver(petFormSchema)
+        resolver: zodResolver(PetSchema)
     })
 
     const [isOpen, setIsOpen] = useState(false)
 
     const {updatePet, isPending: updatePetPending} = useUpdatePet()
     const onSubmit: SubmitHandler<FormData> = data => {
-        updatePet({id: props.id, petName: data.petName}, {
+        updatePet(data, {
             onSuccess() {
                 setIsOpen(prevState => !prevState)
             }
         })
     }
-    //TODO add all fields
 
     const {deletePet, isPending: deletePetPending} = useDeletePet()
     const handleDeletePet = () => {
-        deletePet({id: props.id}, {
+        deletePet({id: pet.id}, {
             onSuccess() {
                 setIsOpen(prevState => !prevState)
             }
         })
     }
 
+    console.log(methods.formState.errors)
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
@@ -55,15 +53,16 @@ export const EditPetDetailsModal: FC<Props> = (props) => {
                         <CreateUpdatePetForm/>
                         <DialogFooter>
                             <ButtonWithLoader
-                                type="submit"
-                                isPending={updatePetPending}>
-                                Save pet
-                            </ButtonWithLoader>
-                            <ButtonWithLoader
+                                variant="destructive"
                                 type="button"
                                 onClick={handleDeletePet}
                                 isPending={deletePetPending}>
                                 Delete pet
+                            </ButtonWithLoader>
+                            <ButtonWithLoader
+                                type="submit"
+                                isPending={updatePetPending}>
+                                Save pet
                             </ButtonWithLoader>
                         </DialogFooter>
                     </form>

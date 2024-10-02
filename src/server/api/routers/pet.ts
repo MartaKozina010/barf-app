@@ -1,6 +1,5 @@
-import {z} from "zod";
-import {Species, Pet} from '@prisma/client'
 import {createTRPCRouter, publicProcedure} from "~/server/api/trpc";
+import {CreateUpdatePetSchema, DeletePetSchema, UpdatePetSchema} from "~/utils";
 
 export const petRouter = createTRPCRouter({
     getPetsList: publicProcedure
@@ -13,27 +12,15 @@ export const petRouter = createTRPCRouter({
         )),
 
     createNewPet: publicProcedure
-        .input(z.object({
-            petName: z.string(),
-            species: z.nativeEnum(Species),
-            weight: z.number(),
-            percentOfWeight: z.number(),
-            breed: z.string(),
-            birthdate: z.date().nullable(),
-            neutered: z.boolean().nullable()
-        }))
-        //TODO change them all with zod-prisma as Pet model
+        .input(CreateUpdatePetSchema)
         .mutation(async ({ctx, input}) => {
             return ctx.db.pet.create({
-                data: {...input}
+                data: input
             })
         }),
 
     updatePetById: publicProcedure
-        .input(z.object({
-            id: z.number(),
-            petName: z.string(),
-        }))
+        .input(UpdatePetSchema)
         .mutation(async ({ctx, input}) => {
             return ctx.db.pet.update({
                 where: {
@@ -46,9 +33,7 @@ export const petRouter = createTRPCRouter({
         }),
 
     deletePetById: publicProcedure
-        .input(z.object({
-            id: z.number(),
-        }))
+        .input(DeletePetSchema)
         .mutation(async ({ctx, input}) => {
             return ctx.db.pet.delete({
                 where: {

@@ -12,30 +12,28 @@ import {
 import {Form} from "~/components/ui/form";
 import {
     CreateUpdatePetForm,
-    petFormSchema,
-    type PetFormSchema as FormData
 } from "~/app/my-pets/_components/create-update-pet-form";
 import {type SubmitHandler, useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {useCreateNewPet} from "~/app/_utils";
 import {useState} from "react";
 import {ButtonWithLoader} from "~/app/_components/SubmitButton";
-
+import {CreateUpdatePet as FormData, CreateUpdatePetSchema} from "~/utils";
 
 export const CreateNewPetModal = () => {
     const methods = useForm<FormData>({
         mode: "onSubmit",
-        resolver: zodResolver(petFormSchema),
+        resolver: zodResolver(CreateUpdatePetSchema),
     })
 
     const [isOpen, setIsOpen] = useState(false);
     const {createNewPet, isPending} = useCreateNewPet()
 
     const onSubmit: SubmitHandler<FormData> = data => {
-        createNewPet({...data, birthdate: data.birthdate ?? null, neutered: data.neutered ?? null}, {
+        createNewPet(data, {
             onSuccess() {
                 setIsOpen(prevState => !prevState)
-                methods.reset({weight: 0})
+                methods.reset()
             }
         })
     }
